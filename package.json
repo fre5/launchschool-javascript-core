@@ -1,0 +1,23 @@
+{
+  "name": "launchschool_javascript_core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fre5/launchschool_javascript_core.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fre5/launchschool_javascript_core/issues"
+  },
+  "homepage": "https://github.com/fre5/launchschool_javascript_core#readme",
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  }
+}
