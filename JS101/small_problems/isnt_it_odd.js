@@ -6,8 +6,7 @@ console.log(isOdd(-8)); // => false
 console.log(isOdd(0)); // => false
 console.log(isOdd(7)); // => true
 
-//--
-//with Math.abs
+////with Math.abs
 
 let isOddMath = (number) => Math.abs(number) % 2 === 1 ? true : false;
 
