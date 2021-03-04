@@ -8,16 +8,7 @@ function askAndGetValue(message) {
   return inputValue;
 }
 
-while (true) {
-  let choice = askAndGetValue(`Choose one: ${VALID_CHOICES.join(', ')} `);
-
-  while (!VALID_CHOICES.includes(choice)) {
-    choice = askAndGetValue('Not a valid choice, please try again ');
-  }
-
-  let randomIndex = Math.floor(Math.random() * VALID_CHOICES.length);
-  let computerChoice = VALID_CHOICES[randomIndex];
-
+function displayWinner(choice, computerChoice) {
   console.log(`You chose ${choice}, computer chose ${computerChoice}`);
 
   if ((choice === 'rock' && computerChoice === 'scissors') ||
@@ -31,14 +22,24 @@ while (true) {
   } else {
     console.log("It's a tie");
   }
-
-  let playAgain;
-  playAgain = askAndGetValue('Would you like to play again?(y/n) ').toLocaleLowerCase();
-
-  while (true) {
-    if (playAgain === 'y' || playAgain === 'n') {
-      break;
-    }
-  }
-  if (playAgain === 'n') break;
 }
+
+let playAgain;
+
+do {
+  let choice = askAndGetValue(`Choose one: ${VALID_CHOICES.join(', ')} `);
+
+  while (!VALID_CHOICES.includes(choice)) {
+    choice = askAndGetValue('Not a valid choice, please try again ');
+  }
+
+  let randomIndex = Math.floor(Math.random() * VALID_CHOICES.length);
+  let computerChoice = VALID_CHOICES[randomIndex];
+
+  displayWinner(choice, computerChoice);
+
+  do {
+    playAgain = askAndGetValue('Would you like to play again?(y/n) ').toLocaleLowerCase();
+  } while (playAgain[0] !== 'y' && playAgain[0] !== 'n');
+
+} while (playAgain[0] !== 'n');
