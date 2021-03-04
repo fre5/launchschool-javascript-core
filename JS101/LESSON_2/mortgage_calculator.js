@@ -24,7 +24,7 @@ do {
     let denominator = 1 - Math.pow((1 + monthlyRate), (-loanDuration));
     monthlyPayment = loanAmount * (monthlyRate / denominator);
   } else {
-    monthlyPayment = loanAmount / loanDuration;
+    monthlyPayment = loanAmount / (loanDuration === 0 ? 1 : '');
   }
 
   console.log(`Your monthly payment is ${monthlyPayment.toFixed(2)}`);
