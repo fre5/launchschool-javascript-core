@@ -14,7 +14,7 @@ while (true) {
   let loanAmount = askValidate('loan amount: ');
   let annualRate = askValidate('Annual Percentage Rate (in percentage): ') / 100;
   let loanDuration = askValidate('loan duration (in year(s)): ') * 12;
-  loanDuration = loanDuration === 0 ? 1 : '';
+  loanDuration = loanDuration === 0 ? 1 : loanDuration;
   let monthlyRate = annualRate / 12;
   let monthlyPayment;
   let repeat;
