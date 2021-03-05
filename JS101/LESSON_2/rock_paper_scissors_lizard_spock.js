@@ -116,8 +116,8 @@ do {
     console.log('Computer is the grand winner!');
   }
 
-  playerScore = 0;   //reset scores
-  computerScore = 0; //reset scores
+  playerScore = 0;   //scores reset
+  computerScore = 0; 
 
   do {
     playAgain = askAndGetValue('Would you like to play again?(y/n) > ').toLocaleLowerCase();
