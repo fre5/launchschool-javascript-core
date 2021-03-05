@@ -116,7 +116,7 @@ do {
     console.log('Computer is the grand winner!');
   }
 
-  playerScore = 0;   //scores reset
+  playerScore = 0;   //reset
   computerScore = 0; 
 
   do {
