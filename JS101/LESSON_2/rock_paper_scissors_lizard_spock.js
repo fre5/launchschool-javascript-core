@@ -3,7 +3,7 @@ const VALID_CHOICES = ['rock', 'paper', 'scissors', 'lizard', 'spock'];
 const WINNING_SCORE = 5;
 
 console.log('_____ROCK PAPER SCISSORS LIZARD SPOCK_____');
-console.log('______________Best of 5 win_______________');
+console.log(`______________Best of ${WINNING_SCORE} win_______________`);
 function askAndGetValue(message) {
   let inputValue = rlSync.question(`=> ${message}`);
   return inputValue.toLowerCase();
