@@ -1,11 +1,12 @@
 const rlSync = require('readline-sync');
 const VALID_CHOICES = ['rock', 'paper', 'scissors', 'lizard', 'spock'];
+const WINNING_SCORE = 5;
 
 console.log('_____ROCK PAPER SCISSORS LIZARD SPOCK_____');
-
+console.log('______________Best of 5 win_______________');
 function askAndGetValue(message) {
   let inputValue = rlSync.question(`=> ${message}`);
-  return inputValue;
+  return inputValue.toLowerCase();
 }
 
 let playerScore = 0;
@@ -19,7 +20,7 @@ function scores(winOrLose) {
   }
 }
 
-function choiceLogic(computerChoice, winTo1, winTo2, loseTo1, loseTo2) {
+function determineWinner(computerChoice, winTo1, winTo2, loseTo1, loseTo2) {
   if (computerChoice === winTo1 || computerChoice === winTo2) {
     console.log('You win!');
 
@@ -33,6 +34,7 @@ function choiceLogic(computerChoice, winTo1, winTo2, loseTo1, loseTo2) {
   } else {
     console.log('It\'s a tie');
   }
+  console.log(`Player Score: ${playerScore}, Computer Score: ${computerScore}`);
 }
 
 function displayWinner(choice, computerChoice) {
@@ -40,19 +42,19 @@ function displayWinner(choice, computerChoice) {
 
   switch (choice) {
     case 'rock':
-      choiceLogic(computerChoice, 'scissors', 'lizard', 'paper', 'spock');
+      determineWinner(computerChoice, 'scissors', 'lizard', 'paper', 'spock');
       break;
     case 'paper':
-      choiceLogic(computerChoice, 'rock', 'spock', 'scissors', 'lizard');
+      determineWinner(computerChoice, 'rock', 'spock', 'scissors', 'lizard');
       break;
     case 'scissors':
-      choiceLogic(computerChoice, 'paper', 'lizard', 'rock', 'spock');
+      determineWinner(computerChoice, 'paper', 'lizard', 'rock', 'spock');
       break;
     case 'lizard':
-      choiceLogic(computerChoice, 'spock', 'paper', 'rock', 'scissors');
+      determineWinner(computerChoice, 'spock', 'paper', 'rock', 'scissors');
       break;
     case 'spock':
-      choiceLogic(computerChoice, 'scissors', 'rock', 'paper', 'lizard');
+      determineWinner(computerChoice, 'scissors', 'rock', 'paper', 'lizard');
       break;
   }
 }
@@ -63,13 +65,7 @@ function twoS() {
     selection = askAndGetValue('Type c for scissors and o for spock > ');
   }
 
-  if (selection === 'c') {
-    selection = 'scissors';
-  } else {
-    selection = 'spock';
-  }
-
-  return selection;
+  return selection === 'c' ? 'scissors' : 'spock';
 }
 
 function chooseShortened(string) {
@@ -91,6 +87,16 @@ function chooseShortened(string) {
   return selection;
 }
 
+function gameWinner(playerScoreArg, computerScoreArg) {
+  if (playerScoreArg === WINNING_SCORE) {
+    console.log('You are the grand winner!');
+  } else if (computerScoreArg === WINNING_SCORE ) {
+    console.log('Computer is the grand winner!');
+  }
+  playerScore = 0;   //reset
+  computerScore = 0;
+}
+
 let playAgain;  // 'y' or 'n'
 
 do {
@@ -107,21 +113,15 @@ do {
     let computerChoice = VALID_CHOICES[randomIndex];
 
     displayWinner(shortenedChoice, computerChoice);
-    if (playerScore === 5 || computerScore === 5) break;
+    if (playerScore === WINNING_SCORE || computerScore === WINNING_SCORE) break;
   }
 
-  if (playerScore === 5) {
-    console.log('You are the grand winner!');
-  } else if (computerScore === 5 ) {
-    console.log('Computer is the grand winner!');
-  }
-
-  playerScore = 0;   //reset
-  computerScore = 0; 
+  gameWinner(playerScore, computerScore);
 
   do {
     playAgain = askAndGetValue('Would you like to play again?(y/n) > ').toLocaleLowerCase();
   } while (playAgain[0] !== 'y' && playAgain[0] !== 'n');
+  console.clear();
 
 } while (playAgain[0] !== 'n');
 
