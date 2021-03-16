@@ -101,25 +101,31 @@ function findAtRiskSquare(board) {
   let playerChoices = Object.keys(board).filter(key => board[key] === 'X');  
 
   if(playerChoices.length > 1) {
-    let playerCombination = [];
+    let playerCombinations = []; //collects all combinations of player choices
 
+    //iterate through current player choices
     for(let i = 0; i < playerChoices.length; i++) {
       for(let j = i+1; j < playerChoices.length; j++) {
-        playerCombination.push([playerChoices[i], playerChoices[j]]);
+        playerCombinations.push([playerChoices[i], playerChoices[j]]);
       }
     }
 
-    let lineBlockerArray = [];
+    let lineBlockerArray = []; //collects the keys to block almost win lines
 
-    for (let index = 0; index < playerCombination.length; index++) {
-      let sq1 = playerCombination[index][0];
-      let sq2 = playerCombination[index][1];
+    //iterate through player combination arrays
+    for (let index = 0; index < playerCombinations.length; index++) {
+      let sq1 = playerCombinations[index][0];
+      let sq2 = playerCombinations[index][1];
+      //filters out all array elements that match player almost win combinations
       lineBlockerArray.push(parseInt(Object.keys(ALMOST_LINE).filter(key => ALMOST_LINE[key].some(arr => arr[0] === parseInt(sq1) && arr[1] === parseInt(sq2)))));
     }
-  
+    
+    //console.log(lineBlockerArray);
+    //filters out blocking move options by available squares
+    
     let lineBlocker = lineBlockerArray.filter(num => emptySquares(board).includes(String(num)));
-
-    return lineBlocker;
+    //console.log(lineBlocker);
+    return lineBlocker[0];
   } else {
     return null;
   }
