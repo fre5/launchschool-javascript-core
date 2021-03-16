@@ -3,13 +3,24 @@ const INITIAL_MARKER = ' ';
 const PLAYER_MARKER = 'X';
 const COMPUTER_MARKER = 'O';
 const WINNING_SCORE = 5;
-console.log('\n   TIC TAC TOE\n');
+const ALMOST_LINE = {
+  1: [[2,3], [4,7], [5,9]],
+  2: [[1,3], [5,8]],
+  3: [[1,2], [6,9], [5,7]],
+  4: [[5,6], [1,7]],
+  5: [[4,6], [2,8], [1,9], [3,7]],
+  6: [[4,5], [3,9]],
+  7: [[8,9], [1,4], [3,5]],
+  8: [[7,9], [2,5]],
+  9: [[7,8], [3,6], [1,5]]
+}    
 
 function prompt(string) {
   console.log(string);
 }
 
 function displayBoard(board) {
+  console.log('\n   TIC TAC TOE\n');
   //console.clear();
   console.log(`You are ${PLAYER_MARKER}. Computer is ${COMPUTER_MARKER}`);
   let inc = 0;
@@ -72,64 +83,70 @@ function playerChoosesSquare(board) {
 }
 
 function computerChoosesSquare(board) {
+  
+  if (offensivePlay(board)) {
+    board[offensivePlay(board)] = COMPUTER_MARKER;
 
-  if(board[findAtRiskSquare(board)]) {
-    board[findAtRiskSquare(board)] = COMPUTER_MARKER;
+  } else if(findAlmostLine(board, PLAYER_MARKER)) {
+    board[findAlmostLine(board, PLAYER_MARKER)] = COMPUTER_MARKER;
 
-  } else {
-    
+  } else if(board['5'] === INITIAL_MARKER){
+    board['5'] = COMPUTER_MARKER;
+
+  } else {  
     let randomIndex = Math.floor(Math.random() * emptySquares(board).length);
     let square = emptySquares(board)[randomIndex];
     board[square] = COMPUTER_MARKER;
   }
-  
 }
 
-function findAtRiskSquare(board) {
-  const ALMOST_LINE = {
-    1: [[2,3], [4,7], [5,9]],
-    2: [[1,3], [5,8]],
-    3: [[1,2], [6,9], [5,7]],
-    4: [[5,6], [1,7]],
-    5: [[4,6], [2,8], [1,9], [3,7]],
-    6: [[4,5], [3,9]],
-    7: [[8,9], [1,4], [3,5]],
-    8: [[7,9], [2,5]],
-    9: [[7,8], [3,6], [1,5]]
-  }                      
+function findAlmostLine(board,marker) { 
 
-  let playerChoices = Object.keys(board).filter(key => board[key] === 'X');  
+  let choices = Object.keys(board).filter(key => board[key] === marker);  
 
-  if(playerChoices.length > 1) {
-    let playerCombinations = []; //collects all combinations of player choices
+  if(choices.length > 1) {
+    let squareCombinations = []; //collects all combinations of player choices
 
     //iterate through current player choices
-    for(let i = 0; i < playerChoices.length; i++) {
-      for(let j = i+1; j < playerChoices.length; j++) {
-        playerCombinations.push([playerChoices[i], playerChoices[j]]);
+    for(let i = 0; i < choices.length; i++) {
+      for(let j = i+1; j < choices.length; j++) {
+        squareCombinations.push([choices[i], choices[j]]);
       }
     }
 
-    let lineBlockerArray = []; //collects the keys to block almost win lines
+    let completeOrBlockArray = []; //collects the keys to block almost win lines
 
     //iterate through player combination arrays
-    for (let index = 0; index < playerCombinations.length; index++) {
-      let sq1 = playerCombinations[index][0];
-      let sq2 = playerCombinations[index][1];
+    for (let index = 0; index < squareCombinations.length; index++) {
+      let sq1 = squareCombinations[index][0];
+      let sq2 = squareCombinations[index][1];
       //filters out all array elements that match player almost win combinations
-      lineBlockerArray.push(parseInt(Object.keys(ALMOST_LINE).filter(key => ALMOST_LINE[key].some(arr => arr[0] === parseInt(sq1) && arr[1] === parseInt(sq2)))));
+      completeOrBlockArray.push(parseInt(Object.keys(ALMOST_LINE).filter(key => ALMOST_LINE[key].some(arr => arr[0] === parseInt(sq1) && arr[1] === parseInt(sq2)))));
     }
     
-    //console.log(lineBlockerArray);
+    //console.log(completeOrBlockArray);
     //filters out blocking move options by available squares
     
-    let lineBlocker = lineBlockerArray.filter(num => emptySquares(board).includes(String(num)));
-    //console.log(lineBlocker);
-    return lineBlocker[0];
+    let completeOrBlock = completeOrBlockArray.filter(num => emptySquares(board).includes(String(num)));
+    //console.log(completeOrBlock);
+    return completeOrBlock[0];
   } else {
     return null;
   }
+}
 
+function offensivePlay(board) {
+  
+  let freeSquares = Object.keys(board).filter(key => board[key] === INITIAL_MARKER);
+
+  if (freeSquares.length === 8) {
+    let cornerSquares = ['1', '3', '7', '9'];
+    let availableCorners = cornerSquares.filter(num => freeSquares.includes(num));
+    
+    return availableCorners[Math.floor(Math.random() * availableCorners.length)];
+  } else if (findAlmostLine(board, COMPUTER_MARKER)) {
+    return findAlmostLine(board, COMPUTER_MARKER);
+  } 
   
 }
 
@@ -162,20 +179,38 @@ function boardFull(board) {
   return emptySquares(board).length === 0;
 }
 
+function chooseSquare(board, currentPlayer) {
+  if(currentPlayer === '1') {
+    playerChoosesSquare(board);
+  } else if (currentPlayer === '2') {
+    computerChoosesSquare(board);
+  }
+}
+
+function alternatePlayer(currentPlayer) {
+  return currentPlayer === '1' ? '2' : '1';
+}
+
 while(true) {
   let playerScore = 0;
   let computerScore = 0;
+  let currentPlayer;
+  
 
   while(playerScore < WINNING_SCORE && computerScore < WINNING_SCORE) {
     let board = initializeBoard();
     
     while(true) {
       displayBoard(board);
-  
-      playerChoosesSquare(board);
-      if (someoneWon(board) || boardFull(board)) break;
-  
-      computerChoosesSquare(board);
+      while (currentPlayer !== '1' && currentPlayer !== '2') {
+        currentPlayer = rlSync.question('Who goes first?(1.Player/2.Computer)');
+        if (currentPlayer !== '1' && currentPlayer !== '2') {
+          prompt('Please enter a valid answer');
+        }
+      }
+
+      chooseSquare(board, currentPlayer);
+      currentPlayer = alternatePlayer(currentPlayer);
       if (someoneWon(board) || boardFull(board)) break;
     }
   
@@ -201,8 +236,15 @@ while(true) {
 
   }
   prompt('Play again? (y or n)');
-  let answer = rlSync.question().toLowerCase();
-  if (answer !== 'y') break;
+  let answer = '';
+  while (answer !== 'n' && answer !== 'y') {
+    answer = rlSync.question().toLowerCase();
+    if (answer !== 'n' && answer !== 'y') {
+      prompt('Please enter a valid answer');
+    }
+  }
+  if(answer === 'n') break;
+  
 }
 
 prompt('Thanks for playing, goodbye!');
