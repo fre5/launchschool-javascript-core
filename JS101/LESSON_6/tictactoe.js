@@ -11,7 +11,7 @@ function prompt(string) {
 
 function displayBoard(board) {
   console.log('\n   TIC TAC TOE\n');
-  //console.clear();
+  console.clear();
   console.log(`You are ${PLAYER_MARKER}. Computer is ${COMPUTER_MARKER}`);
   let inc = 0;
   console.log('');
@@ -209,7 +209,7 @@ function alternatePlayer(currentPlayer) {
 }
 
 while(true) {
-  //console.clear();
+  console.clear();
   let playerScore = 0;
   let computerScore = 0;
   let currentPlayer = '';
