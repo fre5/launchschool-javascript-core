@@ -13,7 +13,7 @@ const ALMOST_LINE = {
   7: [[8,9], [1,4], [3,5]],
   8: [[7,9], [2,5]],
   9: [[7,8], [3,6], [1,5]]
-}    
+};    
 
 function prompt(string) {
   console.log(string);
@@ -21,7 +21,6 @@ function prompt(string) {
 
 function displayBoard(board) {
   console.log('\n   TIC TAC TOE\n');
-  //console.clear();
   console.log(`You are ${PLAYER_MARKER}. Computer is ${COMPUTER_MARKER}`);
   let inc = 0;
   console.log('');
@@ -105,16 +104,16 @@ function findAlmostLine(board,marker) {
   let choices = Object.keys(board).filter(key => board[key] === marker);  
 
   if(choices.length > 1) {
-    let squareCombinations = []; //collects all combinations of player choices
+    let squareCombinations = []; //collects all combinations of selected choices
 
-    //iterate through current player choices
+    //iterate through selected choices
     for(let i = 0; i < choices.length; i++) {
       for(let j = i+1; j < choices.length; j++) {
         squareCombinations.push([choices[i], choices[j]]);
       }
     }
 
-    let completeOrBlockArray = []; //collects the keys to block almost win lines
+    let completeOrBlockArray = []; //collect the keys to block or complete almost win lines
 
     //iterate through player combination arrays
     for (let index = 0; index < squareCombinations.length; index++) {
@@ -124,12 +123,10 @@ function findAlmostLine(board,marker) {
       completeOrBlockArray.push(parseInt(Object.keys(ALMOST_LINE).filter(key => ALMOST_LINE[key].some(arr => arr[0] === parseInt(sq1) && arr[1] === parseInt(sq2)))));
     }
     
-    //console.log(completeOrBlockArray);
     //filters out blocking move options by available squares
     
     let completeOrBlock = completeOrBlockArray.filter(num => emptySquares(board).includes(String(num)));
-    //console.log(completeOrBlock);
-    return completeOrBlock[0];
+    return completeOrBlock[0]; //takes the first option 
   } else {
     return null;
   }
@@ -139,9 +136,9 @@ function offensivePlay(board) {
   
   let freeSquares = Object.keys(board).filter(key => board[key] === INITIAL_MARKER);
 
-  if (freeSquares.length === 8) {
-    let cornerSquares = ['1', '3', '7', '9'];
-    let availableCorners = cornerSquares.filter(num => freeSquares.includes(num));
+  if (freeSquares.length >= 8) {
+    let CORNER_SQUARES = ['1', '3', '7', '9'];
+    let availableCorners = CORNER_SQUARES.filter(num => freeSquares.includes(num));
     
     return availableCorners[Math.floor(Math.random() * availableCorners.length)];
   } else if (findAlmostLine(board, COMPUTER_MARKER)) {
@@ -177,43 +174,58 @@ function someoneWon(board) {
 
 function boardFull(board) {
   return emptySquares(board).length === 0;
+
 }
 
 function chooseSquare(board, currentPlayer) {
-  if(currentPlayer === '1') {
-    playerChoosesSquare(board);
-  } else if (currentPlayer === '2') {
-    computerChoosesSquare(board);
+  switch(currentPlayer) { 
+    case '1':
+      return playerChoosesSquare(board);
+      
+    case '2':
+      return computerChoosesSquare(board);
   }
 }
 
 function alternatePlayer(currentPlayer) {
-  return currentPlayer === '1' ? '2' : '1';
+  switch(currentPlayer) {
+    case '1':
+      return '2';
+    case '2':
+      return '1';
+  }
 }
+
 
 while(true) {
   let playerScore = 0;
   let computerScore = 0;
-  let currentPlayer;
-  
+  let currentPlayer = '';
+  let firstMove = '';
 
   while(playerScore < WINNING_SCORE && computerScore < WINNING_SCORE) {
     let board = initializeBoard();
     
     while(true) {
+
       displayBoard(board);
-      while (currentPlayer !== '1' && currentPlayer !== '2') {
+      while (currentPlayer === '') {
         currentPlayer = rlSync.question('Who goes first?(1.Player/2.Computer)');
-        if (currentPlayer !== '1' && currentPlayer !== '2') {
+        firstMove = currentPlayer; //saves who makes the first move
+
+        if (currentPlayer === '') {
           prompt('Please enter a valid answer');
         }
       }
-
+      
+      
       chooseSquare(board, currentPlayer);
       currentPlayer = alternatePlayer(currentPlayer);
       if (someoneWon(board) || boardFull(board)) break;
     }
-  
+    
+
+
     displayBoard(board);
     if (someoneWon(board)) {
       prompt(`${detectWinner(board)} won!`);
@@ -225,6 +237,7 @@ while(true) {
     } else {
       prompt("It's a tie!");
     }
+
     prompt(`Player score: ${playerScore}`);
     prompt(`Computer score: ${computerScore}`);
     if(playerScore === 5 || computerScore === 5) {
@@ -232,11 +245,13 @@ while(true) {
       break;
     } else {
       rlSync.question('Continue');
+      currentPlayer = firstMove;
     }
-
   }
   prompt('Play again? (y or n)');
   let answer = '';
+  
+
   while (answer !== 'n' && answer !== 'y') {
     answer = rlSync.question().toLowerCase();
     if (answer !== 'n' && answer !== 'y') {
@@ -244,10 +259,11 @@ while(true) {
     }
   }
   if(answer === 'n') break;
-  
+  currentPlayer = ''; 
+  firstMove = '';     
 }
 
-prompt('Thanks for playing, goodbye!');
+prompt('Thanks for playing, goodbye! :-)');
 
 
 
