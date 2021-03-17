@@ -136,7 +136,7 @@ function findAlmostLine(board, marker) {
 
 function offensivePlay(board) {
   
-  //Create an array of available.
+  //Create arrays of available squares and player squares.
   let freeSquares = Object.keys(board).filter(key => board[key] === INITIAL_MARKER);
   let playerMark = Object.keys(board).filter(key => board[key] === PLAYER_MARKER);
   
