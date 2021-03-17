@@ -3,17 +3,7 @@ const INITIAL_MARKER = ' ';
 const PLAYER_MARKER = 'X';
 const COMPUTER_MARKER = 'O';
 const WINNING_SCORE = 5;
-const ALMOST_LINE = {
-  1: [[2,3], [4,7], [5,9]],
-  2: [[1,3], [5,8]],
-  3: [[1,2], [6,9], [5,7]],
-  4: [[5,6], [1,7]],
-  5: [[4,6], [2,8], [1,9], [3,7]],
-  6: [[4,5], [3,9]],
-  7: [[8,9], [1,4], [3,5]],
-  8: [[7,9], [2,5]],
-  9: [[7,8], [3,6], [1,5]]
-};    
+const WINNING_LINES = [[1,2,3], [4,5,6], [7,8,9], [1,4,7], [2,5,8], [3,6,9], [1,5,9], [3,5,7]];
 
 function prompt(string) {
   console.log(string);
@@ -21,6 +11,7 @@ function prompt(string) {
 
 function displayBoard(board) {
   console.log('\n   TIC TAC TOE\n');
+  //console.clear();
   console.log(`You are ${PLAYER_MARKER}. Computer is ${COMPUTER_MARKER}`);
   let inc = 0;
   console.log('');
@@ -44,7 +35,7 @@ function initializeBoard() {
   for (let square = 1; square <= 9; square +=1) {
     board[String(square)] = INITIAL_MARKER;
   }
-  
+
   return board;
 } 
 
@@ -77,7 +68,7 @@ function playerChoosesSquare(board) {
     
   }
   
-  board[square] = 'X';
+  board[square] = PLAYER_MARKER;
   
 }
 
@@ -99,59 +90,92 @@ function computerChoosesSquare(board) {
   }
 }
 
-function findAlmostLine(board,marker) { 
+function findAlmostLine(board, marker) { 
+  const ALMOST_LINE = {
+    1: [[2,3], [4,7], [5,9]],
+    2: [[1,3], [5,8]],
+    3: [[1,2], [6,9], [5,7]],
+    4: [[5,6], [1,7]],
+    5: [[4,6], [2,8], [1,9], [3,7]],
+    6: [[4,5], [3,9]],
+    7: [[8,9], [1,4], [3,5]],
+    8: [[7,9], [2,5]],
+    9: [[7,8], [3,6], [1,5]]
+  };    
 
+  //Create an array of keys with a selected marker.
   let choices = Object.keys(board).filter(key => board[key] === marker);  
 
   if(choices.length > 1) {
-    let squareCombinations = []; //collects all combinations of selected choices
+    let squareCombinations = []; 
 
-    //iterate through selected choices
+    //Create all combination of selected choices.
     for(let i = 0; i < choices.length; i++) {
       for(let j = i+1; j < choices.length; j++) {
         squareCombinations.push([choices[i], choices[j]]);
       }
     }
 
-    let completeOrBlockArray = []; //collect the keys to block or complete almost win lines
+    let completeOrBlockArray = []; //Collect all keys to block or complete almost win lines.
 
-    //iterate through player combination arrays
+    //Iterate through array of player combination sub arrays.
     for (let index = 0; index < squareCombinations.length; index++) {
       let sq1 = squareCombinations[index][0];
       let sq2 = squareCombinations[index][1];
-      //filters out all array elements that match player almost win combinations
+      //Filter out each array element of sub arrays that matches player almost win combinations and store it in a new array.
       completeOrBlockArray.push(parseInt(Object.keys(ALMOST_LINE).filter(key => ALMOST_LINE[key].some(arr => arr[0] === parseInt(sq1) && arr[1] === parseInt(sq2)))));
     }
     
-    //filters out blocking move options by available squares
-    
+    //Create an array of blocking or completing key from available empty squares.
     let completeOrBlock = completeOrBlockArray.filter(num => emptySquares(board).includes(String(num)));
-    return completeOrBlock[0]; //takes the first option 
+    return completeOrBlock[0]; //Takes the first option.
   } else {
-    return null;
+    return null; 
   }
 }
 
 function offensivePlay(board) {
   
+  //Create an array of available.
   let freeSquares = Object.keys(board).filter(key => board[key] === INITIAL_MARKER);
+  let playerMark = Object.keys(board).filter(key => board[key] === PLAYER_MARKER);
+  
+  //Check for the first move.
+  if (playerMark.length === 1 && freeSquares.length === 8) {
+    //Check for available winning lines.
+    let possibleLines = WINNING_LINES.filter(num => !num.includes(playerMark[0]) && !emptySquares(board).includes(num));
 
-  if (freeSquares.length >= 8) {
+    possibleLines = possibleLines.flat();
+    
+    //Create an object of all possible winning lines.
+    let possibleLinesObj = {};
+    for (let i = 0; i < possibleLines.length; i++) {
+      possibleLinesObj[possibleLines[i]] = possibleLinesObj[possibleLines[i]] + 1 || 1;
+    }
+
+    //Sort the object in order to find a square with the highest win probability.
+    let sortedByValue = Object.entries(possibleLinesObj).sort((a, b) => b[1] - a[1]);
+
+    //Take the most frequent square.
+    return sortedByValue[0][0];
+    
+    //Aim to win by checking for almost complete line and complete it.
+  } else if (findAlmostLine(board, COMPUTER_MARKER)) {
+    return findAlmostLine(board, COMPUTER_MARKER);
+    
+    //Then always take a corner square while checking for any threats.
+  } else if (freeSquares.length > 6 && !findAlmostLine(board, PLAYER_MARKER)) {
     let CORNER_SQUARES = ['1', '3', '7', '9'];
     let availableCorners = CORNER_SQUARES.filter(num => freeSquares.includes(num));
     
     return availableCorners[Math.floor(Math.random() * availableCorners.length)];
-  } else if (findAlmostLine(board, COMPUTER_MARKER)) {
-    return findAlmostLine(board, COMPUTER_MARKER);
-  } 
-  
+  }
 }
 
 function detectWinner(board) {  
-  let winningLines = [[1,2,3], [4,5,6], [7,8,9], [1,4,7], [2,5,8], [3,6,9], [1,5,9], [3,5,7]];
 
-  for (let line = 0; line < winningLines.length; line++ ) {
-    let [ sq1, sq2, sq3 ] = winningLines[line];
+  for (let line = 0; line < WINNING_LINES.length; line++ ) {
+    let [ sq1, sq2, sq3 ] = WINNING_LINES[line];
 
     if ( board[sq1] === PLAYER_MARKER && 
          board[sq2] === PLAYER_MARKER &&
@@ -174,30 +198,18 @@ function someoneWon(board) {
 
 function boardFull(board) {
   return emptySquares(board).length === 0;
-
 }
 
 function chooseSquare(board, currentPlayer) {
-  switch(currentPlayer) { 
-    case '1':
-      return playerChoosesSquare(board);
-      
-    case '2':
-      return computerChoosesSquare(board);
-  }
+  return currentPlayer === '1' ? playerChoosesSquare(board) : computerChoosesSquare(board);
 }
 
 function alternatePlayer(currentPlayer) {
-  switch(currentPlayer) {
-    case '1':
-      return '2';
-    case '2':
-      return '1';
-  }
+  return currentPlayer === '1' ? '2' : '1';
 }
 
-
 while(true) {
+  //console.clear();
   let playerScore = 0;
   let computerScore = 0;
   let currentPlayer = '';
@@ -224,11 +236,11 @@ while(true) {
       if (someoneWon(board) || boardFull(board)) break;
     }
     
-
-
     displayBoard(board);
     if (someoneWon(board)) {
+
       prompt(`${detectWinner(board)} won!`);
+
       if (detectWinner(board) === 'Player') {
         playerScore++;
       } else if (detectWinner(board) === 'Computer') {
@@ -240,6 +252,7 @@ while(true) {
 
     prompt(`Player score: ${playerScore}`);
     prompt(`Computer score: ${computerScore}`);
+
     if(playerScore === 5 || computerScore === 5) {
       prompt(`Game Over, ${detectWinner(board)} won the game!`);
       break;
@@ -251,19 +264,19 @@ while(true) {
   prompt('Play again? (y or n)');
   let answer = '';
   
-
   while (answer !== 'n' && answer !== 'y') {
     answer = rlSync.question().toLowerCase();
     if (answer !== 'n' && answer !== 'y') {
       prompt('Please enter a valid answer');
     }
   }
+
   if(answer === 'n') break;
   currentPlayer = ''; 
   firstMove = '';     
 }
-
-prompt('Thanks for playing, goodbye! :-)');
+console.clear();
+prompt('Thanks for playing, goodbye! 👋');
 
 
 
