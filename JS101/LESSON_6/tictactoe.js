@@ -4,6 +4,7 @@ const PLAYER_MARKER = 'X';
 const COMPUTER_MARKER = 'O';
 const WINNING_SCORE = 5;
 const WINNING_LINES = [[1,2,3], [4,5,6], [7,8,9], [1,4,7], [2,5,8], [3,6,9], [1,5,9], [3,5,7]];
+const CORNER_SQUARES = ['1', '3', '7', '9'];
 
 function prompt(string) {
   console.log(string);
@@ -12,21 +13,21 @@ function prompt(string) {
 function displayBoard(board) {
   console.clear();
   let inc = 0;
-  console.log(`\n   TIC TAC TOE\n`);
-  console.log(`You are ${PLAYER_MARKER}. Computer is ${COMPUTER_MARKER}`);
-  console.log('');
-  console.log('     |     |');
-  console.log(`  ${board[String(++inc)]}  |  ${board[String(++inc)]}  |  ${board[String(++inc)]}`);
-  console.log('     |     |');
-  console.log('-----+-----+-----');
-  console.log('     |     |');
-  console.log(`  ${board[String(++inc)]}  |  ${board[String(++inc)]}  |  ${board[String(++inc)]}`);
-  console.log('     |     |');
-  console.log('-----+-----+-----');
-  console.log('     |     |');
-  console.log(`  ${board[String(++inc)]}  |  ${board[String(++inc)]}  |  ${board[String(++inc)]}`);
-  console.log('     |     |');
-  console.log('');
+  prompt(`\n   TIC TAC TOE\n`);
+  prompt(`You are ${PLAYER_MARKER}. Computer is ${COMPUTER_MARKER}`);
+  prompt('');
+  prompt('     |     |');
+  prompt(`  ${board[String(++inc)]}  |  ${board[String(++inc)]}  |  ${board[String(++inc)]}`);
+  prompt('     |     |');
+  prompt('-----+-----+-----');
+  prompt('     |     |');
+  prompt(`  ${board[String(++inc)]}  |  ${board[String(++inc)]}  |  ${board[String(++inc)]}`);
+  prompt('     |     |');
+  prompt('-----+-----+-----');
+  prompt('     |     |');
+  prompt(`  ${board[String(++inc)]}  |  ${board[String(++inc)]}  |  ${board[String(++inc)]}`);
+  prompt('     |     |');
+  prompt('');
 }
 
 function initializeBoard() {
@@ -128,7 +129,7 @@ function findAlmostLine(board, marker) {
     
     //Create an array of blocking or completing key from available empty squares.
     let completeOrBlock = completeOrBlockArray.filter(num => emptySquares(board).includes(String(num)));
-    return completeOrBlock[0]; //Takes the first option.
+    return completeOrBlock[0]; //Take the first option.
   } else {
     return null; 
   }
@@ -139,12 +140,12 @@ function offensivePlay(board) {
   //Create arrays of available squares and player squares.
   let playerMark = Object.keys(board).filter(key => board[key] === PLAYER_MARKER);
   
-  //Check for the first move.
-  if (playerMark.length === 1 && emptySquares(board).length === 8) {
+  //Check the first 2 moves.
+  if ((playerMark.length <= 2 && emptySquares(board).length >= 6 ) && !findAlmostLine(board,PLAYER_MARKER)) {
     //Check for available winning lines.
     let possibleLines = WINNING_LINES.filter(num => !num.includes(playerMark[0])).flat();
 
-    //Filter possible lines by 
+    //Filter available empty squares.
     possibleLines = possibleLines.filter(num => {
       return emptySquares(board).includes(String(num)) ;
     });
@@ -158,6 +159,13 @@ function offensivePlay(board) {
     //Sort the object in order to find a square with the highest win probability.
     let sortedByValue = Object.entries(possibleLinesObj).sort((a, b) => b[1] - a[1]);
 
+    //Anticipate players from playing corners.
+    if ((playerMark.includes('1') && playerMark.includes('9')) || 
+        (playerMark.includes('3') && playerMark.includes('7'))) {
+      let noCorners = sortedByValue.filter(num => !CORNER_SQUARES.includes(num[0]));
+      return noCorners.map(num => num[0])[Math.floor(Math.random() * noCorners.length)];
+    }
+    
     //Take the most frequent square.
     return sortedByValue[0][0];
     
@@ -167,7 +175,7 @@ function offensivePlay(board) {
     
     //Then always take a corner square while checking for any threats.
   } else if (emptySquares(board).length > 6 && !findAlmostLine(board, PLAYER_MARKER)) {
-    let CORNER_SQUARES = ['1', '3', '7', '9'];
+    
     let availableCorners = CORNER_SQUARES.filter(num => freeSquares.includes(num));
     
     return availableCorners[Math.floor(Math.random() * availableCorners.length)];
@@ -226,11 +234,11 @@ while(true) {
 
       displayBoard(board);
       
-      while (currentPlayer === '') {
+      while (currentPlayer !== '1' && currentPlayer !== '2') {
         currentPlayer = rlSync.question('Who goes first?(1.Player/2.Computer)');
         firstMove = currentPlayer; //saves who makes the first move
 
-        if (currentPlayer === '') {
+        if (currentPlayer !== '1' && currentPlayer !=='2') {
           prompt('Please enter a valid answer');
         }
       }
