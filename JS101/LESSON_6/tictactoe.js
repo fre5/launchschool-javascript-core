@@ -137,15 +137,17 @@ function findAlmostLine(board, marker) {
 function offensivePlay(board) {
   
   //Create arrays of available squares and player squares.
-  let freeSquares = Object.keys(board).filter(key => board[key] === INITIAL_MARKER);
   let playerMark = Object.keys(board).filter(key => board[key] === PLAYER_MARKER);
   
   //Check for the first move.
-  if (playerMark.length === 1 && freeSquares.length === 8) {
+  if (playerMark.length === 1 && emptySquares(board).length === 8) {
     //Check for available winning lines.
-    let possibleLines = WINNING_LINES.filter(num => !num.includes(playerMark[0]));
+    let possibleLines = WINNING_LINES.filter(num => !num.includes(playerMark[0])).flat();
 
-    possibleLines = possibleLines.flat();
+    //Filter possible lines by 
+    possibleLines = possibleLines.filter(num => {
+      return emptySquares(board).includes(String(num)) ;
+    });
     
     //Create an object of all possible winning lines.
     let possibleLinesObj = {};
@@ -164,7 +166,7 @@ function offensivePlay(board) {
     return findAlmostLine(board, COMPUTER_MARKER);
     
     //Then always take a corner square while checking for any threats.
-  } else if (freeSquares.length > 6 && !findAlmostLine(board, PLAYER_MARKER)) {
+  } else if (emptySquares(board).length > 6 && !findAlmostLine(board, PLAYER_MARKER)) {
     let CORNER_SQUARES = ['1', '3', '7', '9'];
     let availableCorners = CORNER_SQUARES.filter(num => freeSquares.includes(num));
     
