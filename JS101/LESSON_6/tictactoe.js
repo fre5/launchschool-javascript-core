@@ -10,10 +10,10 @@ function prompt(string) {
 }
 
 function displayBoard(board) {
-  console.log('\n   TIC TAC TOE\n');
   console.clear();
-  console.log(`You are ${PLAYER_MARKER}. Computer is ${COMPUTER_MARKER}`);
   let inc = 0;
+  console.log(`\n   TIC TAC TOE\n`);
+  console.log(`You are ${PLAYER_MARKER}. Computer is ${COMPUTER_MARKER}`);
   console.log('');
   console.log('     |     |');
   console.log(`  ${board[String(++inc)]}  |  ${board[String(++inc)]}  |  ${board[String(++inc)]}`);
@@ -143,7 +143,7 @@ function offensivePlay(board) {
   //Check for the first move.
   if (playerMark.length === 1 && freeSquares.length === 8) {
     //Check for available winning lines.
-    let possibleLines = WINNING_LINES.filter(num => !num.includes(playerMark[0]) && !emptySquares(board).includes(num));
+    let possibleLines = WINNING_LINES.filter(num => !num.includes(playerMark[0]));
 
     possibleLines = possibleLines.flat();
     
@@ -208,19 +208,22 @@ function alternatePlayer(currentPlayer) {
   return currentPlayer === '1' ? '2' : '1';
 }
 
+
 while(true) {
-  console.clear();
+
   let playerScore = 0;
   let computerScore = 0;
   let currentPlayer = '';
   let firstMove = '';
 
   while(playerScore < WINNING_SCORE && computerScore < WINNING_SCORE) {
+
     let board = initializeBoard();
-    
+
     while(true) {
 
       displayBoard(board);
+      
       while (currentPlayer === '') {
         currentPlayer = rlSync.question('Who goes first?(1.Player/2.Computer)');
         firstMove = currentPlayer; //saves who makes the first move
