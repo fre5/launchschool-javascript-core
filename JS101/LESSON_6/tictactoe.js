@@ -19,7 +19,7 @@ function prompt(string) {
 }
 
 function displayBoard(board) {
-  //console.clear();
+  console.clear();
   let inc = 0;
   prompt(`\n   TIC TAC TOE\n`);
   prompt(`You are ${PLAYER_MARKER}. Computer is ${COMPUTER_MARKER}\n`);
