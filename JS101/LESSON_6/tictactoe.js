@@ -19,7 +19,7 @@ function prompt(string) {
 }
 
 function displayBoard(board) {
-  console.clear();
+  //console.clear();
   let inc = 0;
   prompt(`\n   TIC TAC TOE\n`);
   prompt(`You are ${PLAYER_MARKER}. Computer is ${COMPUTER_MARKER}\n`);
@@ -136,8 +136,10 @@ function findAlmostLine(board, marker) {
   }
 }
 
-function sortObj(obj) {
-  return Object.entries(obj).sort((a, b) => b[1] - a[1]);
+function sortSquareFrequency(obj) {
+  const objValIndex = 1;
+  //Sort by the value of obj that is turned into nested arrays.
+  return Object.entries(obj).sort((a, b) => b[objValIndex] - a[objValIndex]);
 }
 
 function checkCorners(board) {
@@ -164,7 +166,7 @@ function possibleWinLines(board, playerMark) {
       possibleLinesObj[possibleLines[index]] + 1 || 1;
   }
 
-  return sortObj(possibleLinesObj);
+  return sortSquareFrequency(possibleLinesObj);
 }
 
 function offensivePlay(board) {
@@ -191,7 +193,7 @@ function offensivePlay(board) {
   return null;
 }
 
-function detectWinner(board) {
+function detectRoundWinner(board) {
 
   for (let line = 0; line < WINNING_LINES.length; line++ ) {
     let [ sq1, sq2, sq3 ] = WINNING_LINES[line];
@@ -211,8 +213,8 @@ function detectWinner(board) {
   return null;
 }
 
-function someoneWon(board) {
-  return !!detectWinner(board);
+function someoneWonRound(board) {
+  return !!detectRoundWinner(board);
 }
 
 function boardFull(board) {
@@ -220,13 +222,38 @@ function boardFull(board) {
 }
 
 function chooseSquare(board, currentPlayer) {
-  return currentPlayer === '1' ? playerChoosesSquare(board) : computerChoosesSquare(board);
+  return currentPlayer === 'Player' ? playerChoosesSquare(board) : computerChoosesSquare(board);
 }
 
 function alternatePlayer(currentPlayer) {
-  return currentPlayer === '1' ? '2' : '1';
+  return currentPlayer === 'Player' ? 'Computer' : 'Player';
 }
 
+function playAgain() {
+  prompt('Play again? (y or n)');
+  let answer = '';
+
+  while (answer !== 'n' && answer !== 'y') {
+    answer = rlSync.question().toLowerCase();
+    if (answer !== 'n' && answer !== 'y') {
+      prompt('Please enter a valid answer');
+    }
+  }
+  return answer === 'y';
+}
+
+function playFirst(currentPlayer) {
+  while (currentPlayer !== 'Player' && currentPlayer !== 'Computer') {
+    prompt('Best of 5 to win');
+    currentPlayer = rlSync.question('Who goes first?(1.Player/2.Computer)');
+    if (currentPlayer === '1') {
+      currentPlayer = 'Player';
+    } else if (currentPlayer === '2') {
+      currentPlayer = 'Computer';
+    }
+  }
+  return currentPlayer;
+}
 
 while (true) {
 
@@ -240,27 +267,24 @@ while (true) {
     let board = initializeBoard();
 
     while (true) {
-
       displayBoard(board);
 
-      while (currentPlayer !== '1' && currentPlayer !== '2') {
-        currentPlayer = rlSync.question('Who goes first?(1.Player/2.Computer)');
-        firstMove = currentPlayer; //Saves who makes the first move.
-      }
+      currentPlayer = playFirst(currentPlayer);
+      firstMove = currentPlayer;
 
       chooseSquare(board, currentPlayer);
       currentPlayer = alternatePlayer(currentPlayer);
-      if (someoneWon(board) || boardFull(board)) break;
+      if (someoneWonRound(board) || boardFull(board)) break;
     }
 
     displayBoard(board);
-    if (someoneWon(board)) {
+    if (someoneWonRound(board)) {
 
-      prompt(`${detectWinner(board)} won!`);
+      prompt(`${detectRoundWinner(board)} won!`);
 
-      if (detectWinner(board) === 'Player') {
+      if (detectRoundWinner(board) === 'Player') {
         playerScore++;
-      } else if (detectWinner(board) === 'Computer') {
+      } else if (detectRoundWinner(board) === 'Computer') {
         computerScore++;
       }
     } else {
@@ -270,25 +294,17 @@ while (true) {
     prompt(`Player score: ${playerScore}`);
     prompt(`Computer score: ${computerScore}`);
 
-    if (playerScore === 5 || computerScore === 5) {
-      prompt(`Game Over, ${detectWinner(board)} won the game!`);
+    if (playerScore === WINNING_SCORE || computerScore === WINNING_SCORE) {
+      prompt(`Game Over, ${detectRoundWinner(board)} won the game!`);
       break;
     } else {
       rlSync.question('Continue');
       currentPlayer = firstMove;
     }
   }
-  prompt('Play again? (y or n)');
-  let answer = '';
+  let answer = playAgain();
 
-  while (answer !== 'n' && answer !== 'y') {
-    answer = rlSync.question().toLowerCase();
-    if (answer !== 'n' && answer !== 'y') {
-      prompt('Please enter a valid answer');
-    }
-  }
-
-  if (answer === 'n') break;
+  if (!answer) break;
   currentPlayer = '';
   firstMove = '';
 }
