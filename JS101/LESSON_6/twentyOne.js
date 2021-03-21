@@ -2,11 +2,11 @@ const rlSync = require('readline-sync');
 const gameModes = {
   21: 17, 31: 27, 41: 37, 51: 47
 };
-const deckValue = {
+const DECK_VALUE = {
   2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10,
   J: 10, Q: 10, K: 10, A: [1, 11]
 };
-const deckAmount = {
+const DECK_AMOUNT = {
   2: 4, 3: 4, 4: 4, 5: 4, 6: 4, 7: 4, 8: 4, 9: 4, 10: 4,
   J: 4, Q: 4, K: 4, A: 4
 };
@@ -20,7 +20,7 @@ function prompt(msg) {
 
 function pickACard(playingDeck) {
   while (true) {
-    let card = Object.keys(deckValue)[Math.floor(Math.random() * 13)];
+    let card = Object.keys(DECK_VALUE)[Math.floor(Math.random() * 13)];
 
     if (playingDeck[card] > 0) {
       playingDeck[card] -= 1;
@@ -38,22 +38,27 @@ function hit(cardOnHand, playingDeck) {
 function option(question, option1, option2) {
   let answer = rlSync.question(`${question} (${option1}/${option2}) `).toLowerCase();
   while (answer !== option1 && answer !== option2) {
-    answer = rlSync.question(`Please enter a valid answer (${option1}/${option2}) `);
+    answer = rlSync.question(`Please enter a valid answer (${option1}/${option2}) `).toLowerCase();
   }
   return answer === option1;
+}
+
+function adjustTotalForAces(total) {
+  if (total <= 10) {
+    total += DECK_VALUE['A'][1];
+  } else {
+    total += DECK_VALUE['A'][0];
+  }
+  return total;
 }
 
 function checkTotal(cardsOnHand) {
   let total = 0;
   cardsOnHand.forEach(num => {
     if (num === 'A') {
-      if (total <= 10) {
-        total += deckValue[num][1];
-      } else {
-        total += deckValue[num][0];
-      }
+      total = adjustTotalForAces(total);
     } else {
-      total += deckValue[num];
+      total += DECK_VALUE[num];
     }
   });
   return total;
@@ -117,7 +122,7 @@ while (true) {
   let gameMode = gameModePicker();
 
   //Reset the deck.
-  let playingDeck = JSON.parse(JSON.stringify(deckAmount));
+  let playingDeck = JSON.parse(JSON.stringify(DECK_AMOUNT));
 
   while (true) {
     console.clear();
