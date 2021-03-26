@@ -51,34 +51,14 @@ Rules :
   - MOD : Pop a value from the stack and divide it into the register value, storing the integer remainder of the division in the register.
   - POP : Remove the topmost item from the stack and place it in the register.
   - PRINT : Print the register value.
-Data structure :
+Data structure & Algorithm:
   - n is the result. declare and initialize variable result and assign it to the value of integer 0.
-  - stack is the array, declare, initialize and assign it to the argument value of string. 
-
-
-SET stack = []
-SET register = 0
-
-
-
-5 push 3 mult print
-
-LOOP 
-  1st iteration 5 push -> stack.push(5), 
-  2nd iteration 3 mult -> register * 3, register -> 15
-  3rd iteration print -> print register = console.log(register) -> 15
-
-5 print push 3 print add print
-
-LOOP 
-  1st iteration 5 print -> register -> 5, print register = console.log(register) -> 5
-  2nd iteration push -> stack.push(5), stack -> [5]
-  3rd iteration 3 print -> 
-
-register = 5
-push 3 = 
-
-
+  - Declare and initialized a variable named stack and assign it with a value of an empty array.
+  - Declare and initialized a variable named register and assign it an integer with a value of 0. 
+  - Declare and initialize a variable named array and assign it the input argument string with a split method with an argument of 1 whitespace ' '.
+  - Reassign the variable array to the same array with a map method where each element is evaluated as a number or a string using isNaN(Number(element)).
+  - Use a for loop which index starts from 0, and will keep iterating each array element as long index is less than the length of the array, and every iteration index will increment by 1.
+  - Inside the for loop, use a switch case that evaluates and compare the value of each array element to the specified strings above.
 
 
 */
