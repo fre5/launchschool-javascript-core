@@ -102,8 +102,8 @@ function findCombination(choices) {
   let squareCombinations = [];
   //Create all combination of selected choices.
   for (let index = 0; index < choices.length; index++) {
-    for (let subindex = index + 1; subindex < choices.length; subindex++) {
-      squareCombinations.push([choices[index], choices[subindex]]);
+    for (let subIndex = index + 1; subIndex < choices.length; subIndex++) {
+      squareCombinations.push([choices[index], choices[subIndex]]);
     }
   }
   return squareCombinations;
