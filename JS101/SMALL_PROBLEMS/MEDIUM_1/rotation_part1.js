@@ -3,10 +3,8 @@ function rotateArray(array) {
   if (!Array.isArray(array)) return undefined;
   else if (array.length === 0) return [];
   else {
-    array.forEach(element => {
-      result.push(element);
-    });
-    result.unshift(result.shift());
+    result = array.slice();
+    result.push(result.shift());
   }
   return result;
 }
