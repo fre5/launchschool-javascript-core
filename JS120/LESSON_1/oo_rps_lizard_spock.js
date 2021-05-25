@@ -60,7 +60,9 @@ function shortenedChoice(string) {
 }
 
 const RPSGame = {
-  MOVE_SCORE: {
+  /*a scoring system where a winning choice
+  gets 1 point, losing / draw gets 0 point*/
+  SCORING: {
     rock: { scissors: 1, lizard: 1, paper: 0, spock: 0, rock: 0 },
     paper: { rock: 1, spock: 1, scissors: 0, lizard: 0, paper: 0 },
     scissors: { paper: 1, lizard: 1, rock: 0, spock: 0, scissors: 0 },
@@ -85,9 +87,11 @@ const RPSGame = {
     while (this.userName.split("").some(element => !ALPHABET.includes(element))) {
       this.userName = rlSync.question('Please enter a valid name: ');
     }
+
     if (this.userName === "") {
       this.userName = "Player";
     }
+
     this.userName = this.userName[0].toUpperCase() + this.userName.slice(1);
   },
   displayGoodbyeMessage() {
@@ -133,10 +137,13 @@ const RPSGame = {
     });
     return humanHistoryPercent;
   },
+  frequentChoice(array, object) {
+    return array.slice().some(element => object[element] > 60 &&
+      object[element] !== 100);
+  },
   computerAdjChoose(object) {
     let adjChoices = [];
-    if (CHOICES.slice().some(element => object[element] > 60 &&
-      object[element] !== 100)) {
+    if (this.frequentChoice(CHOICES, object)) {
       adjChoices = CHOICES.slice().filter(element =>
         object[element] < 60 || object[element] === undefined);
 
@@ -149,8 +156,8 @@ const RPSGame = {
   playerMoves() {
     let humanMove = this.human.move;
     let computerMove = this.computer.move;
-    let humanPoint = this.MOVE_SCORE[humanMove][computerMove];
-    let computerPoint = this.MOVE_SCORE[computerMove][humanMove];
+    let humanPoint = this.SCORING[humanMove][computerMove];
+    let computerPoint = this.SCORING[computerMove][humanMove];
 
     this.displayHands(humanPoint, computerPoint);
 
@@ -172,7 +179,7 @@ const RPSGame = {
   answerValidator(ask) {
     let answer = rlSync.question(ask);
     answer = answer[0].toLowerCase();
-    while (answer !== 'y' && answer !== 'n') {
+    while (!'YyNn'.includes(answer)) {
       answer = rlSync.question('Please enter a valid answer (y/n) ');
     }
     answer = answer[0].toLowerCase();
@@ -181,7 +188,7 @@ const RPSGame = {
   replay() {
     let answer = this.answerValidator('Play again? (y/n) ');
     console.clear();
-    return answer.toLowerCase()[0] === 'y';
+    return answer[0] === 'y' || answer[0] === 'Y';
   },
   play() {
     console.clear();
