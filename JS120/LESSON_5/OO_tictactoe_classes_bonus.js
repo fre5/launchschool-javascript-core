@@ -5,6 +5,10 @@ class Square {
     this.marker = marker;
   }
 
+  static UNUSED_SQUARE = " ";
+  static HUMAN_MARKER = "X";
+  static COMPUTER_MARKER = "0";
+
   toString() {
     return this.marker;
   }
@@ -22,14 +26,21 @@ class Square {
   }
 }
 
-Square.UNUSED_SQUARE = " ";
-Square.HUMAN_MARKER = "X";
-Square.COMPUTER_MARKER = "0";
-
 class Board {
   constructor() {
     this.reset();
   }
+
+  static POSSIBLE_WINNING_ROWS = [
+    ["1", "2", "3"],
+    ["4", "5", "6"],
+    ["7", "8", "9"],
+    ["1", "5", "9"],
+    ["3", "5", "7"],
+    ["1", "4", "7"],
+    ["2", "5", "8"],
+    ["3", "6", "9"]
+  ];
 
   reset() {
     this.squares = {};
@@ -109,11 +120,62 @@ class Human extends Player {
   constructor() {
     super(Square.HUMAN_MARKER);
   }
+
+  humanMoves(board) {
+    let choice;
+
+    while (true) {
+      let validChoices = board.unusedSquares();
+      choice = rlSync.question(`Choose a square (${board.joinOr(validChoices, ", ")}): `);
+
+      if (validChoices.includes(choice)) break;
+      console.log("Sorry, that's not a valid choice. \n");
+    }
+
+    board.markSquareAt(choice, Square.HUMAN_MARKER);
+  }
 }
 
 class Computer extends Player {
   constructor() {
     super(Square.COMPUTER_MARKER);
+    this.human = new Human();
+  }
+
+  generateRandomNum(range) {
+    return Math.floor((Math.random() * range) + 1);
+  }
+
+  computerMoves(board) {
+
+    let choice;
+    let validChoices = board.unusedSquares();
+
+    let offenseMove = this.computerAction(validChoices, this.human, board);
+    let defenseMove = this.computerAction(validChoices, this, board);
+
+    if (offenseMove.length > 0) {
+      choice = offenseMove[0].filter(key =>
+        validChoices.includes(key)).toString();
+    } else if (defenseMove.length > 0) {
+      choice = defenseMove[0].filter(key =>
+        validChoices.includes(key)).toString();
+    } else if (validChoices.includes('5')) {
+      choice = '5';
+    } else {
+      do {
+        choice = validChoices[this.generateRandomNum(validChoices.length)];
+      } while (!validChoices.includes(choice));
+    }
+
+    board.markSquareAt(choice, Square.COMPUTER_MARKER);
+  }
+
+  computerAction(validChoices, player, board) {
+    return Board.POSSIBLE_WINNING_ROWS.filter(row => {
+      return board.countMarkersFor(player, row) === 2 &&
+        row.some(key => validChoices.includes(key));
+    });
   }
 }
 
@@ -125,6 +187,18 @@ class TTTGame {
     this.firstPlayer = null;
     this.secondPlayer = null;
   }
+
+  static WINNING_SCORE = 3;
+  static POSSIBLE_WINNING_ROWS = [
+    ["1", "2", "3"],
+    ["4", "5", "6"],
+    ["7", "8", "9"],
+    ["1", "5", "9"],
+    ["3", "5", "7"],
+    ["1", "4", "7"],
+    ["2", "5", "8"],
+    ["3", "6", "9"]
+  ];
 
   displayWelcomeMessage() {
     console.log("Welcome to TIC TAC TOE!");
@@ -248,9 +322,9 @@ class TTTGame {
 
   playerMoves(player) {
     if (player === this.human) {
-      this.humanMoves();
+      this.human.humanMoves(this.board);
     } else if (player === this.computer) {
-      this.computerMoves();
+      this.computer.computerMoves(this.board);
     }
   }
 
@@ -262,54 +336,6 @@ class TTTGame {
       output = this.firstPlayer;
     }
     return output;
-  }
-
-  humanMoves() {
-    let choice;
-
-    while (true) {
-      let validChoices = this.board.unusedSquares();
-      choice = rlSync.question(`Choose a square (${this.board.joinOr(validChoices, ", ")}): `);
-
-      if (validChoices.includes(choice)) break;
-      console.log("Sorry, that's not a valid choice. \n");
-    }
-
-    this.board.markSquareAt(choice, Square.HUMAN_MARKER);
-  }
-
-  computerMoves() {
-    let choice;
-    let validChoices = this.board.unusedSquares();
-    let offenseMove = this.computerAction(validChoices, this.human);
-    let defenseMove = this.computerAction(validChoices, this.computer);
-
-    if (offenseMove.length > 0) {
-      choice = offenseMove[0].filter(key =>
-        validChoices.includes(key)).toString();
-    } else if (defenseMove.length > 0) {
-      choice = defenseMove[0].filter(key =>
-        validChoices.includes(key)).toString();
-    } else if (validChoices.includes('5')) {
-      choice = '5';
-    } else {
-      do {
-        choice = validChoices[this.generateRandomNum(validChoices.length)];
-      } while (!validChoices.includes(choice));
-    }
-
-    this.board.markSquareAt(choice, Square.COMPUTER_MARKER);
-  }
-
-  computerAction(validChoices, player) {
-    return TTTGame.POSSIBLE_WINNING_ROWS.filter(row => {
-      return this.board.countMarkersFor(player, row) === 2 &&
-        row.some(key => validChoices.includes(key));
-    });
-  }
-
-  generateRandomNum(range) {
-    return Math.floor((Math.random() * range) + 1);
   }
 
   gameOver() {
@@ -329,18 +355,6 @@ class TTTGame {
     });
   }
 }
-
-TTTGame.WINNING_SCORE = 3;
-TTTGame.POSSIBLE_WINNING_ROWS = [
-  ["1", "2", "3"],
-  ["4", "5", "6"],
-  ["7", "8", "9"],
-  ["1", "5", "9"],
-  ["3", "5", "7"],
-  ["1", "4", "7"],
-  ["2", "5", "8"],
-  ["3", "6", "9"]
-];
 
 let game = new TTTGame();
 game.play();
