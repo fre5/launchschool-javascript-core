@@ -65,7 +65,7 @@ class Deck {
     return card;
   }
 
-  enoughCardToDeal(shuffledDeck) {
+  enoughCardsToDeal(shuffledDeck) {
     return shuffledDeck.length < 4;
   }
 }
@@ -273,7 +273,7 @@ class TwentyOneGame {
   }
 
   checkAndResetDeck() {
-    if (this.deck.enoughCardToDeal(this.shuffledDeckArray)) {
+    if (this.deck.enoughCardsToDeal(this.shuffledDeckArray)) {
       this.shuffleNewDeck();
     }
   }
